@@ -228,8 +228,6 @@ class BertForHypernymsExtraction(BertPreTrainedModel):
                 if sequence_mode == 'all':
                     raise NotImplementedError
                 elif sequence_mode == 'not-all':
-                    if offset + i < max_seq_length:
-                        orig_positions_map.append(offset + i)
                     token_valid_pos_ids += [offset + i] * num_sub_tokens
                     tags_sequence_labels.append(tags_sequence_label)
                 else:

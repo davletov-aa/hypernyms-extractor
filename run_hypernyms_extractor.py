@@ -343,7 +343,7 @@ def main(args):
         best_result = defaultdict(float)
         for eval_metric in eval_metrics:
             best_result[eval_metric] = args.threshold
-   
+
         print('best results thresholds:')
         print(best_result)
 
@@ -407,7 +407,7 @@ def main(args):
                 )
             ):
                 batch = tuple(t.to(device) for t in batch)
-                input_ids, input_mask, segment_ds, \
+                input_ids, input_mask, segment_ids, \
                 tags_sequence_labels_ids, token_valid_pos_ids = batch
                 train_loss = model(
                     input_ids=input_ids,
@@ -612,12 +612,11 @@ def write_predictions(
         'tags_sequence': 'O',
     }
     for task in ['tags_sequence']:
-        # TODO: DOPISAT'
         aggregated_results[task] = [
-            list(pred[orig_positions]) + \
+            list(pred[1:-1]) + \
             [
                 label2id[task][neg_label_mapper[task]]
-            ] * (len(ex.tokens) - len(orig_positions))
+            ] * (len(ex.tokens) - len(pred) + 2)
             for pred, ex in zip(
                 preds[task],
                 examples
@@ -625,11 +624,10 @@ def write_predictions(
         ]
 
         aggregated_results[f'{task}_scores'] = [
-            list(score[orig_positions]) + \
-            [0.999] * (len(ex.tokens) - len(orig_positions))
-            for score, orig_positions, ex in zip(
+            list(score[1:-1]) + \
+            [0.999] * (len(ex.tokens) - len(pred) + 2)
+            for score, ex in zip(
                 scores[task],
-                orig_positions_map,
                 examples
             )
         ]

@@ -51,7 +51,7 @@ def compute_all_metrics(
     label2id, loss_info=None, logger=None
 ):
     eval_tags_sequence_labels = [
-        (label2id['tags_sequence'][lab]) for lab in ['B-HYPER', 'I-HYPER']
+        (label2id['tags_sequence'][lab]) for lab in ['B-HYPER', 'I-HYPER', 'O']
     ]
 
     task_2_report = classification_report(
@@ -554,8 +554,8 @@ def main(args):
 
     if args.do_eval:
         test_files = os.path.join(
-            args.data_dir, 'test.json'
-        ) if args.test_file == '' else args.test_file
+            args.data_dir, 'test.json' if args.test_file == '' else args.test_file
+        )
 
         for test_file in test_files.split("8"):
             test_examples = processor.get_test_examples(test_file)
@@ -625,7 +625,7 @@ def write_predictions(
 
         aggregated_results[f'{task}_scores'] = [
             list(score[1:-1]) + \
-            [0.999] * (len(ex.tokens) - len(pred) + 2)
+            [0.999] * (len(ex.tokens) - len(score) + 2)
             for score, ex in zip(
                 scores[task],
                 examples
@@ -701,7 +701,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--eval_metrics",
         default="+".join([
-            "tags_sequence_macro-avg_f1-score"]),
+            "tags_sequence_B-HYPER_f1-score"]),
         type=str
     )
     parser.add_argument("--learning_rate", default=1e-5, type=float,

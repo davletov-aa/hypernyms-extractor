@@ -6,10 +6,8 @@ import torch
 from itertools import groupby
 
 
-SENTENCE_START = '•'
-SENTENCE_END = '•'
-SUBJECT_START = '⁄'
-SUBJECT_END = '⁄'
+HYPONYM_START = '•'
+HYPONYM_END = '҂'
 
 
 class InputFeatures(object):
@@ -228,8 +226,20 @@ class BertForHypernymsExtraction(BertPreTrainedModel):
                 if sequence_mode == 'all':
                     raise NotImplementedError
                 elif sequence_mode == 'not-all':
+                    if i == example.hyponym_span[0]:
+                        tokens.append(HYPONYM_START)
+                        attention_mask.append(1)
+                        token_valid_pos_ids.append(offset + i)
+                        tags_sequence_labels.append(neg_tags_sequence_label)
+                        offset += 1
                     token_valid_pos_ids += [offset + i] * num_sub_tokens
                     tags_sequence_labels.append(tags_sequence_label)
+                    if i == example.hyponym_span[1] - 1:
+                        tokens.append(HYPONYM_END)
+                        attention_mask.append(1)
+                        token_valid_pos_ids.append(offset + i)
+                        tags_sequence_labels.append(neg_tags_sequence_label)
+                        offset += 1
                 else:
                     raise ValueError(
                         f'sequence_mode: expected either all or not-all'

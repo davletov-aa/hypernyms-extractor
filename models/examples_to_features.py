@@ -20,11 +20,13 @@ class InputExample(object):
         self,
         guid: str,
         tokens: list,
-        tags_sequence: list
+        tags_sequence: list,
+        hyponym_span: tuple
     ):
         self.guid = guid
         self.tokens = tokens
         self.tags_sequence = tags_sequence
+        self.hyponym_span = hyponym_span
 
 
 class DataProcessor(object):
@@ -92,7 +94,8 @@ class DataProcessor(object):
                 InputExample(
                     guid=f"{set_type}-{example['id']}",
                     tokens=example["token"],
-                    tags_sequence=example["tags_sequence"]
+                    tags_sequence=example["tags_sequence"],
+                    hyponym_span=example["hyponym_span"]
                 )
             )
         return examples

@@ -223,23 +223,17 @@ class BertForHypernymsExtraction(BertPreTrainedModel):
             ):
                 sub_tokens = tokenizer.tokenize(token)
                 num_sub_tokens = len(sub_tokens)
+                if i == example.hyponym_span[0]:
+                    tokens.append(HYPONYM_START)
+                    attention_mask.append(1)
+                    token_valid_pos_ids.append(offset + i)
+                    tags_sequence_labels.append(neg_tags_sequence_label)
+                    offset += 1
                 if sequence_mode == 'all':
                     raise NotImplementedError
                 elif sequence_mode == 'not-all':
-                    if i == example.hyponym_span[0]:
-                        tokens.append(HYPONYM_START)
-                        attention_mask.append(1)
-                        token_valid_pos_ids.append(offset + i)
-                        tags_sequence_labels.append(neg_tags_sequence_label)
-                        offset += 1
                     token_valid_pos_ids += [offset + i] * num_sub_tokens
                     tags_sequence_labels.append(tags_sequence_label)
-                    if i == example.hyponym_span[1] - 1:
-                        tokens.append(HYPONYM_END)
-                        attention_mask.append(1)
-                        token_valid_pos_ids.append(offset + i)
-                        tags_sequence_labels.append(neg_tags_sequence_label)
-                        offset += 1
                 else:
                     raise ValueError(
                         f'sequence_mode: expected either all or not-all'
@@ -247,6 +241,12 @@ class BertForHypernymsExtraction(BertPreTrainedModel):
 
                 tokens += sub_tokens
                 attention_mask += [1] * num_sub_tokens
+                if i == example.hyponym_span[1] - 1:
+                    offset += 1
+                    tokens.append(HYPONYM_END)
+                    attention_mask.append(1)
+                    token_valid_pos_ids.append(offset + i)
+                    tags_sequence_labels.append(neg_tags_sequence_label)
 
             accepted_examples.append(example)
 

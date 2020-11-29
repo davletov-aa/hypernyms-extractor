@@ -152,8 +152,8 @@ def create_tags_sequence(target_spans, sequence_len, neg_tag, pos_tag = 'HYPER')
 
 def create_hyponym_hypernym_dataset(
     hyponyms_file: str, hypernyms_file: str,
-    sentences_file: str, output_dir: str, neg_tag = 'O',
-    max_examples = 20000, train_dev_split = 0.8
+    sentences_file: str, output_file: str, neg_tag = 'O',
+    max_examples = 20000
 ):
     examples = []
     num_examples = 0
@@ -211,13 +211,9 @@ def create_hyponym_hypernym_dataset(
                     num_examples += 1
 
     print('number of dataset examples:', num_examples)
+    print(f'saving random {min(max_examples, len(examples))} examples')
     shuffle(examples)
-    examples = examples[:max_examples]
-    train = examples[:len(examples) * train_dev_split]
-    dev = examples[len(examples) * train_dev_split:]
-    print(f'saving random {max_examples} examples')
-    json.dump(train, open(os.path.join(output_dir, 'train.json'), 'w'))
-    json.dump(dev, open(os.path.join(output_dir, 'dev.json'), 'w'))
+    json.dump(examples[:max_examples], open(output_file, 'w'))
 
 
 def create_hyponym_dataset(

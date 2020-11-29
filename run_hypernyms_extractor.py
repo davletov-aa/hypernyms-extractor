@@ -612,6 +612,14 @@ def write_predictions(
         'tags_sequence': 'O',
     }
     for task in ['tags_sequence']:
+        aggregated_results[task] = []
+        aggregated_results[f'{task}_scores'] = []
+        for pred, score, example in zip(preds[task], scores[task], examples):
+            pred = list(pred[1:example.hyponym_span[0]+1]) + list(pred[example.hyponym_span[0]+2:example.hyponym_span[1]+2]) + list(pred[example.hyponym_span[1]+3:]) + [label2id[task][neg_label_mapper[task]]] * (len(ex.tokens) - len(pred) + 4)
+            score = list(score[1:example.hyponym_span[0]+1]) + list(score[example.hyponym_span[0]+2:example.hyponym_span[1]+2]) + list(score[example.hyponym_span[1]+3:]) + [0.999] * (len(ex.tokens) - len(score) + 4)
+            aggregated_results[task].append(pred)
+            aggregated_results[f'{task}_scores'].append(score)
+
         aggregated_results[task] = [
             list(pred[1:-1]) + \
             [
